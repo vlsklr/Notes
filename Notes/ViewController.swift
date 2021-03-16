@@ -37,11 +37,11 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     }
     
     private func generateNote() {
-        let note = Note()
+        /*let note = Note(id: 1, tittle: "NotTittle", noteText: "NoteText", image: nil)
         note.id = 1
         note.noteText = "NoteTxt"
         note.tittle = "test tittle"
-        StorageManager.saveObjct(note)
+        StorageManager.saveObjct(note)*/
     }
 
 

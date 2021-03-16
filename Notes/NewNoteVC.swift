@@ -14,6 +14,7 @@ class NewNoteVC: UITableViewController {
     @IBOutlet weak var noteTextLabel: UITextView!
     @IBOutlet weak var doneBtn: UIBarButtonItem!
     
+    var newNote: Note?
     override func viewDidLoad() {
         super.viewDidLoad()
         doneBtn.isEnabled = false
@@ -24,15 +25,25 @@ class NewNoteVC: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // первая ячейка indexPath - imageView
         if indexPath.row == 0 {
+            
+            let cameraIcon = #imageLiteral(resourceName: "camera")
+            let imagepickerIcon = #imageLiteral(resourceName: "photo-1")
             let actionSheet = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             let cameraAction = UIAlertAction(title: "Camera", style: .default) { (_) in
                 // Метод выбора изображения
                 self.chooseImagePicker(source: .camera)
             }
+            //добавляем иконку и выравниваем текст для пункта выбора добавляемого фото
+            cameraAction.setValue(cameraIcon, forKey: "image")
+            cameraAction.setValue(CATextLayerAlignmentMode.left, forKey: "titleTextAlignment")
             let photoAction = UIAlertAction(title: "Photo", style: .default) { (_) in
                 //Метод съемки фото
                 self.chooseImagePicker(source: .photoLibrary)
             }
+            //добавляем иконку и выравниваем текст для пункта выбора добавляемого фото
+            photoAction.setValue(imagepickerIcon, forKey: "image")
+            photoAction.setValue(CATextLayerAlignmentMode.left, forKey: "titleTextAlignment")
+            
             let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
             
             actionSheet.addAction(cameraAction)
@@ -48,9 +59,18 @@ class NewNoteVC: UITableViewController {
         }
     }
     
-    
+    func saveNote() {
+        //newNote = Note(id: 1, tittle: tittleLabel.text!, noteText: noteTextLabel.text, image: noteImageView.image!.pngData()!)
+        newNote = Note()
+        newNote?.id = 1
+        newNote?.tittle = tittleLabel.text!
+        newNote?.noteText = noteTextLabel.text
+        newNote?.image = noteImageView.image!.pngData()!
+        StorageManager.saveObjct(newNote!)
+    }
     
     @IBAction func doneBtnAction(_ sender: Any) {
+        saveNote()
         
         
     }
@@ -77,15 +97,26 @@ extension NewNoteVC: UITextFieldDelegate {
 
 //MARK: Работа с изображениямим
 
-extension NewNoteVC {
+extension NewNoteVC: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     func chooseImagePicker(source: UIImagePickerController.SourceType) {
         if UIImagePickerController.isSourceTypeAvailable(source) {
             let imagePicker = UIImagePickerController()
+            //объект делегирует выполнение метода imagePickerController
+            imagePicker.delegate = self
             imagePicker.allowsEditing = true
             imagePicker.sourceType = source
             present(imagePicker, animated: true)
         }
+    }
+    //Метод для подставления снятого(выбранного) изображения в imageView
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        noteImageView.image = info[.editedImage] as? UIImage
+        //масштабируем изображение по размеру imageView
+        noteImageView.contentMode = .scaleAspectFill
+        //обрезка изображения по границе
+        noteImageView.clipsToBounds = true
+        dismiss(animated: true)
     }
     
     
