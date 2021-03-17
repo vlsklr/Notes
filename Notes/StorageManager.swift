@@ -16,7 +16,7 @@ class StorageManager {
         }
     }
     
-    static func deleteObct(_ note: Note) {
+    static func deleteObject(_ note: Note) {
         try! realm.write{
             realm.delete(note)
         }

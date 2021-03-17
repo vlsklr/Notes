@@ -15,8 +15,8 @@ class Note: Object {
    // @objc dynamic let createDate: NSDate
     //@objc dynamic var editeDate: NSDate
     
-    /*init(id: Int, tittle: String, noteText: String, image: Data) {
-        //super.init()
+    convenience init(id: Int, tittle: String, noteText: String?, image: Data?) {
+        self.init()
         self.id = id
         self.tittle = tittle
         self.noteText = noteText
@@ -24,7 +24,7 @@ class Note: Object {
         //self.createDate = NSDate()
         //self.editeDate = NSDate()
         
-    }*/
+    }
     /*init(id: Int, tittle: String, noteText: String) {
         //super.init()
         self.id = id

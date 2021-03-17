@@ -14,11 +14,15 @@ class NewNoteVC: UITableViewController {
     @IBOutlet weak var noteTextLabel: UITextView!
     @IBOutlet weak var doneBtn: UIBarButtonItem!
     
-    var newNote: Note?
+    var currentNote: Note!
+    var isEditingNote: Bool = false
+    var newNoteID = 1
     override func viewDidLoad() {
         super.viewDidLoad()
         doneBtn.isEnabled = false
+        isEditingNote = false
         tittleLabel.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+        setupEditScreen()
     
     }
     
@@ -59,14 +63,33 @@ class NewNoteVC: UITableViewController {
         }
     }
     
+    private func setupEditScreen() {
+        if currentNote != nil {
+            guard let data = currentNote?.image, let image = UIImage(data: data) else {
+                return
+            }
+            noteImageView.image = image
+            tittleLabel.text = currentNote.tittle
+            noteTextLabel.text = currentNote.noteText
+            doneBtn.isEnabled = true
+        }
+    }
+    
+    
+    
     func saveNote() {
         //newNote = Note(id: 1, tittle: tittleLabel.text!, noteText: noteTextLabel.text, image: noteImageView.image!.pngData()!)
-        newNote = Note()
-        newNote?.id = 1
-        newNote?.tittle = tittleLabel.text!
-        newNote?.noteText = noteTextLabel.text
-        newNote?.image = noteImageView.image!.pngData()!
-        StorageManager.saveObjct(newNote!)
+        let newNote = Note(id: newNoteID, tittle: tittleLabel.text!, noteText: noteTextLabel.text, image: noteImageView.image!.pngData()!)
+        if currentNote != nil{
+            try! realm.write{
+                currentNote.image = newNote.image
+                currentNote.tittle = newNote.tittle
+                currentNote.noteText = newNote.noteText
+            }
+        }else {
+            StorageManager.saveObjct(newNote)
+            navigationController?.popViewController(animated: true)
+        }
     }
     
     @IBAction func doneBtnAction(_ sender: Any) {
@@ -86,7 +109,7 @@ extension NewNoteVC: UITextFieldDelegate {
     }
     //активирует кнопку Done при вводе tittle
     @objc private func textFieldChanged(){
-        if tittleLabel.text?.isEmpty == false {
+       if (tittleLabel.text?.isEmpty == false) {
             doneBtn.isEnabled = true
         }
         else {
